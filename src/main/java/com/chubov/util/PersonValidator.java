@@ -1,7 +1,7 @@
 package com.chubov.util;
 
-import com.chubov.DAO.PersonDAO;
 import com.chubov.model.Person;
+import com.chubov.services.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -10,11 +10,11 @@ import org.springframework.validation.Validator;
 @Component
 public class PersonValidator implements Validator {
 
-    private final PersonDAO personDAO;
+    private final PeopleService peopleService;
 
     @Autowired
-    public PersonValidator(PersonDAO personDAO) {
-        this.personDAO = personDAO;
+    public PersonValidator(PeopleService peopleService) {
+        this.peopleService = peopleService;
     }
 
     @Override
@@ -26,7 +26,7 @@ public class PersonValidator implements Validator {
     public void validate(Object o, Errors errors) {
         Person person = (Person) o;
 
-        if (personDAO.show(person.getFullName()).isPresent()) {
+        if (peopleService.findOne(person.getFullName()).isPresent()) {
             // поле, код ошибки, сообщение ошибки
             errors.rejectValue("fullName", "", "Этот человек уже есть в БД");
         }
