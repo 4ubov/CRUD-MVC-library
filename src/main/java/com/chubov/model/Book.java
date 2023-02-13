@@ -1,17 +1,21 @@
 package com.chubov.model;
 
 import org.hibernate.validator.constraints.Length;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 
 @Entity
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="book_id")
+    @Column(name = "book_id")
     private int book_id;
 
     @NotEmpty(message = "Поле Название, не может быть пустым")
@@ -28,6 +32,14 @@ public class Book {
             message = "Используйте верный формат даты - (dd.mm.yyyy)")
     @Column(name = "realiseDate")
     private String realiseDate;
+
+    @Column(name = "receivingDate")
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date receivingDate;
+
+    @Transient
+    private boolean isOverdue;
 
     @ManyToOne
     @JoinColumn(name = "person_id", referencedColumnName = "person_id")
@@ -82,5 +94,21 @@ public class Book {
 
     public void setOwner(Person owner) {
         this.owner = owner;
+    }
+
+    public Date getReceivingDate() {
+        return receivingDate;
+    }
+
+    public void setReceivingDate(Date receivingDate) {
+        this.receivingDate = receivingDate;
+    }
+
+    public boolean isOverdue() {
+        return (new Date().getTime() - receivingDate.getTime()) / 86400000 < -10;
+    }
+
+    public void setOverdue(boolean overdue) {
+        isOverdue = overdue;
     }
 }

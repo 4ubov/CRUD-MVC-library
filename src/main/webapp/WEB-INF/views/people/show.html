@@ -11,7 +11,6 @@
 
 <div th:if="${books.isEmpty()}">
     <p>Человек не взял ни одной книги</p>
-    <p>Человек не взял ни одной книги</p>
     <hr>
 </div>
 
@@ -19,9 +18,10 @@
     <hr>
     <b>Книги:</b>
     <br>
-    <table th:each="book : ${books}">
-        <tr th:text="${book.getTitle() + ' , ' + book.getAuthor() + ' , ' + book.getRealiseDate()}">book</tr>
-    </table>
+    <div th:each="book : ${books}">
+        <a th:style="${book.isOverdue()} ? 'color: red' : 'color: black'"
+           th:text="${book.getTitle()} + ', ' + ${book.getAuthor()} + ', ' + ${book.getRealiseDate()}">book</a>
+    </div>
     <hr>
 </div>
 <br>

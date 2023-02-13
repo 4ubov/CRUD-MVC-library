@@ -50,7 +50,13 @@ public class PeopleService {
 
     @Transactional
     public void delete(int person_id) {
+        Person person = peopleRepository.getOne(person_id);
+        List<Book> books = booksRepository.findByOwner(person);
+        for (Book book: books){
+            book.setReceivingDate(null);
+        }
         peopleRepository.deleteById(person_id);
+
     }
 
     @Transactional

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,41 +28,40 @@ public class BooksService {
         this.booksRepository = booksRepository;
     }
 
-    public List<Book> findAll(){
+    public List<Book> findAll() {
         return booksRepository.findAll();
     }
 
     @Transactional
-    public Page<Book> findAll(Pageable var1){
+    public Page<Book> findAll(Pageable var1) {
         return booksRepository.findAll(var1);
     }
 
     @Transactional
-    public List<Book> findAll(Sort var1){
+    public List<Book> findAll(Sort var1) {
         return booksRepository.findAll(var1);
     }
 
 
-
-    public Book findOne(int book_id){
+    public Book findOne(int book_id) {
         Optional<Book> foundedBook = booksRepository.findById(book_id);
         return foundedBook.orElse(null);
     }
 
     @Transactional
-    public void save(Book book){
+    public void save(Book book) {
         booksRepository.save(book);
     }
 
     @Transactional
-    public void update(int book_id, Book updatedBook){
+    public void update(int book_id, Book updatedBook) {
         updatedBook.setBookId(book_id);
         updatedBook.setOwner(booksRepository.findById(book_id).get().getOwner());
         booksRepository.save(updatedBook);
     }
 
     @Transactional
-    public void delete(int book_id){
+    public void delete(int book_id) {
         booksRepository.deleteById(book_id);
     }
 
@@ -74,17 +74,20 @@ public class BooksService {
     public void release(int book_id) {
         Book book = booksRepository.findById(book_id).get();
         book.setOwner(null);
+        book.setReceivingDate(null);
 //        jdbcTemplate.update("Update book set person_id=NULL where book_id=?", book_id);
     }
+
     @Transactional
     public void assign(int book_id, Person selectedPerson) {
         Book book = booksRepository.findById(book_id).get();
         selectedPerson = peopleRepository.findById(selectedPerson.getPersonId()).get();
         book.setOwner(selectedPerson);
         selectedPerson.setBooks(book);
+        book.setReceivingDate(new Date());
     }
 
-    public List<Book> searchByTitle(String searchQuery){
+    public List<Book> searchByTitle(String searchQuery) {
         return booksRepository.findByTitleStartingWithIgnoreCase(searchQuery);
     }
 }
