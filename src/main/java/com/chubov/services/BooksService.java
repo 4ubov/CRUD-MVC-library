@@ -5,6 +5,9 @@ import com.chubov.model.Person;
 import com.chubov.repositories.BooksRepository;
 import com.chubov.repositories.PeopleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,18 @@ public class BooksService {
     public List<Book> findAll(){
         return booksRepository.findAll();
     }
+
+    @Transactional
+    public Page<Book> findAll(Pageable var1){
+        return booksRepository.findAll(var1);
+    }
+
+    @Transactional
+    public List<Book> findAll(Sort var1){
+        return booksRepository.findAll(var1);
+    }
+
+
 
     public Book findOne(int book_id){
         Optional<Book> foundedBook = booksRepository.findById(book_id);
@@ -69,4 +84,7 @@ public class BooksService {
         selectedPerson.setBooks(book);
     }
 
+    public List<Book> searchByTitle(String searchQuery){
+        return booksRepository.findByTitleStartingWithIgnoreCase(searchQuery);
+    }
 }

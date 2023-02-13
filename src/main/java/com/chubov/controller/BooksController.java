@@ -5,6 +5,8 @@ import com.chubov.model.Person;
 import com.chubov.services.BooksService;
 import com.chubov.services.PeopleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,8 +28,23 @@ public class BooksController {
     }
 
     @GetMapping()
-    public String index(Model model) {
-        model.addAttribute("books", booksService.findAll());
+    public String index(Model model,
+                        @RequestParam(name = "page", required = false) Integer page,
+                        @RequestParam(name = "books_per_page", required = false) Integer booksPerPage,
+                        @RequestParam(name = "sort_by_title", required = false) Boolean sortByTitle) {
+        if (sortByTitle != null && (page == null || booksPerPage == null)) {
+            model.addAttribute("books", booksService.findAll(Sort.by("title")));
+        } else if ((page != null && booksPerPage != null) && sortByTitle == null) {
+            model.addAttribute("books", booksService.findAll(PageRequest.of(page, booksPerPage)).getContent());
+        } else if ((page != null && booksPerPage != null) && sortByTitle == true) {
+            model.addAttribute("books", booksService.findAll(PageRequest.of(
+                    page,
+                    booksPerPage,
+                    Sort.by("title"))
+            ).getContent());
+        } else {
+            model.addAttribute("books", booksService.findAll());
+        }
         return "books/index";
     }
 
@@ -100,4 +117,14 @@ public class BooksController {
         return "redirect:/books/" + book_id;
     }
 
+
+    @GetMapping("/search")
+    public String searchBook(@RequestParam(required = false, defaultValue = "") String startString,
+                             Model model) {
+        model.addAttribute("startString", startString);
+        if (!startString.isEmpty()) {
+            model.addAttribute("books", booksService.searchByTitle(startString));
+        }
+        return "books/search";
+    }
 }
